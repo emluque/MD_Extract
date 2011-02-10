@@ -1,0 +1,33 @@
+Hi internets, how are you? Hope everything is awesome.
+
+To test just move the folder to an apache dir and access the /examples folder with your browser.
+
+Go on, I'll wait here. 
+
+Now that was pretty cool, right?
+Yep, Microdata is kind of awesome that way.
+
+Well, on to serious stuff.
+
+This has been tested so far in PHP 5.3.4 and you need to have tidy and mb_string support enabled.
+
+Known Issues:
+
+. There might be problems with non-ASCII-extending Characted Encodings. If you find this issue report it with a clear explanation of how the problem encoding works or even better yet, some code.
+. Base treating of http://www.example.com/dir/ and http://www.example.com/dir is the same. Meaning href="a.jpg" will be translated to http://www.example.com/dir/a.jpg in both cases. I don't know if this is correct or not.
+
+Future:
+
+. Add a construct_by_uri() .. (I need some pages with microdata to test this, come on internets!).
+. Add a vocabulary validator framework on top of this.
+. I might (I said MIGHT not WILL) port it to C or C++.
+
+Well that's it, bye internets, take care and eat your vegetables. 
+
+
+Emiliano Martínez Luque
+http://www.metonymie.com
+
+PS: This is way clearer than the Microformat parser I did a couple of years ago ("sup Emiliano, I heard you like tree traversing, so we put a tree in your tree so you can traverse while you traverse") . But that's cause Microdata has way clearer syntax than microformats. 
+
+PS2: If you need to contact me for whatever reason use the contact form in http://www.metonymie.com 
