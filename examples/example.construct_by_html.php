@@ -90,6 +90,10 @@ echo("<!DOCTYPE HTML>
   <title>Example</title>
  </head>
  <body>
+ <h1>Original HTML:</h1>
+<code><pre>
+" . htmlentities($html) . "
+</pre></code>
  <h1>Results:</h1>
  <pre>");
 var_dump($mdx->get_clean_results());

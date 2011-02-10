@@ -43,6 +43,10 @@ echo("<!DOCTYPE HTML>
   <title>Example</title>
  </head>
  <body>
+  <h1>Original HTML:</h1>
+<code><pre>
+" . htmlentities($html) . "
+</pre></code>
  <h1>JSON:</h1>
  <pre>");
 $json = $mdx->get_microdata_as_JSON();
