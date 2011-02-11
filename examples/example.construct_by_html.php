@@ -7,8 +7,8 @@
  */
 ?><?php 
 
-require_once("/home/includes/mylibs/md_extract/class.MD_Extract.php");
-require_once("/home/includes/mylibs/md_extract/lang.errors.php");
+require_once("../md_extract/class.MD_Extract.php");
+require_once("../md_extract/lang.errors.php");
 
 $html = <<< HTML
 <!DOCTYPE HTML>
