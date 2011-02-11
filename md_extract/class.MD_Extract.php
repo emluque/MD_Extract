@@ -46,8 +46,8 @@ class MD_Extract {
 		//Prepare itemscope for tidy
 		$html = $mdx->itemscope_for_tidy($html, $encoding);
 		//Create tidy node
-		$tidy = tidy_parse_string($html, array("new-blocklevel-tags" => "section, header, footer, nav, article, aside, figure, dialog, video, audio, details, datagrid, menu, command, output",
-		 "new-inline-tags" => "mark, time, meter, progress, figcaption, ruby, rt, rp, bdi, keygen, mdxmeta",
+		$tidy = tidy_parse_string($html, array("new-blocklevel-tags" => "section, header, footer, nav, article, aside, figure, dialog, video, audio, details, datagrid, menu, command, output, canvas, datalist, embed",
+		 "new-inline-tags" => "mark, time, meter, progress, figcaption, ruby, rt, rp, bdi, keygen, mdxmeta, source",
 		 "new-empty-tags" => "video, audio, wbr, mdxmeta"));
 		//Set $URI
 		$mdx->set_URI($URI);
