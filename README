@@ -19,6 +19,6 @@ Future:
 Emiliano Martínez Luque
 http://www.metonymie.com
 
-PS: This is way clearer than the Microformat parser I did a couple of years ago, that's because Microdata has way clearer syntax than microformats. 
+PS: This is way clearer than the Microformat parser I did a couple of years ago, that's because Microdata has way clearer syntax than microformats. I think that Microformats was a great idea but there were some design ideas that were overly complex and it took a lot of code gymnastics to implement them, and I really believe that Microdata is a better spec.   
 
 PS2: If you need to contact me for whatever reason use the contact form in http://www.metonymie.com 
