@@ -1,7 +1,6 @@
 <?php
 
 
-
 	function itemscope_for_tidy($html, $encoding = "") {
 		
 		$delimiters[] = " ";
