@@ -2,7 +2,7 @@
 
 require_once("../unit_testing/simpletest/unit_tester.php");
 require_once("../unit_testing/simpletest/reporter.php");
-require_once("itemscope_for_tidy2.php");
+require_once("itemscope_for_tidy.php");
 
 
 
