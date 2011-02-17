@@ -365,76 +365,122 @@ class MD_Extract {
 	 * @param string $html
 	 * @param string $encoding
 	 */
+
 	
-	private function itemscope_for_tidy($html, $encoding = "") {
+	private	function itemscope_for_tidy($html, $encoding = "") {
+		
+		$delimiters[] = " ";
+		$delimiters[] = "\n";
+		$delimiters[] = "\t";
+		$delimiters[] = "\r";
+		
 		$offset = 0;
 		if($encoding == "") $encoding = mb_detect_encoding($html);
 		$strlen = strlen($html);
 		
 		while( ($ltpos = mb_strpos($html, "<", $offset, $encoding)) !== false) {
-			
+
 			$offset = $ltpos;
-			$gtpos = mb_strpos($html, ">", $offset, $encoding);
-	
-			$inside = mb_substr($html, $ltpos, ($gtpos+1)-$ltpos, $encoding);
-	
-			if(mb_strpos($inside, " itemscope ", 0 , $encoding) || mb_strpos($inside, " itemscope/", 0 , $encoding) || mb_strpos($inside, " itemscope>", 0 , $encoding ) || mb_strpos($inside, " itemscope" . "\n", 0 , $encoding )) {
-				$pre = mb_substr($html, 0, $offset, $encoding);
-				$pos = mb_substr($html, $gtpos+1, $strlen , $encoding);
-				$inside = str_replace('itemscope', 'itemscope="1"', $inside);
-				$html = $pre.$inside.$pos;
-				$offset = $gtpos+5;
-			} elseif(mb_strpos($inside, "meta ", 0 , $encoding) || mb_strpos($inside, "meta " . "\n", 0 , $encoding)) {
-				$pre = mb_substr($html, 0, $offset, $encoding);
-				$pos = mb_substr($html, $gtpos+1, $strlen , $encoding);
-				$inside = str_replace('meta', 'mdxmeta', $inside);
-				$html = $pre.$inside.$pos;
-				$offset = $gtpos+4;
-			} else {
-				$offset = $gtpos+1;
+			
+			$start = true;
+			$inside_d_quotes = false;
+			$inside_s_quotes = false;
+			$after_equal = false;
+			$gt_found = false;
+			$expression_start = $offset;
+			$expression_ended = false;
+			$in_expression = false;
+			
+			while( $char = mb_substr($html, $offset, 1, $encoding) ) {
+/*				echo("CHAR: " . $char . " - start: " . $start . 
+				" - inside_d_quotes: " . $inside_d_quotes . 
+				" - inside_s_quotes: " . $inside_s_quotes . 
+				" - after_equal: " . $after_equal .
+				" - gt_found: " . $gt_found .
+				" - expression_start: " . $expression_start .
+				" - expression_ended: " . $expression_ended .
+				" - in_expression: " . $in_expression . "  <br/>\n"  );
+*/				
+				
+				if($start && $char == "<") { 
+					$ltpos++;
+					$offset++;
+					$expression_start++;
+					continue;
+				} elseif( in_array($char, $delimiters)) {
+					if( (!$after_equal && $in_expression) || ($after_equal && (!$inside_s_quotes) && (!$inside_d_quotes))) {
+							//End of expression
+							$expression_ended = true;
+					}
+					if(!$in_expression) { 
+						$expression_start++;
+					}
+					
+				} else {
+					if($char=='=' && (!$inside_s_quotes) && (!$inside_d_quotes) ) {
+						$after_equal = true;					
+					} elseif( $after_equal && $char == '"' && !$inside_s_quotes) {
+						if(!$inside_d_quotes) {
+							$inside_d_quotes = true;
+						} else {
+							$inside_d_quotes = false;
+							$after_equal = false;
+						}
+					} elseif( $after_equal && $char == "'" && !$inside_d_quotes) {
+						if(!$inside_s_quotes) {
+							$inside_s_quotes = true;
+						} else {
+							$inside_s_quotes = false;
+							$after_equal = false;
+						}
+					} elseif( (!$inside_d_quotes) && (!$inside_s_quotes) && $char == ">") {
+						$gt_found = true;
+						$expression_ended = true;
+					}
+					$in_expression = true;
+				}	
+
+				$start = false;
+				if($expression_ended) {
+					$expression = mb_substr($html, $expression_start, $offset-$expression_start, $encoding);
+//					echo("<h1>" . $expression . "</h1>");
+					$expression_length = mb_strlen($expression, $encoding);
+					if( $expression_length >= 9  ) {
+						//This is done with lot's of carelessness, since tidy will pick it up anyhow.
+						//And the value of the attribute itemscope is irrelevant
+						if(mb_substr($expression, 0, 9) == "itemscope") {
+							$pre = mb_substr($html, 0, $expression_start, $encoding);
+							$pos = mb_substr($html, $expression_start+$expression_length, $strlen , $encoding);
+							$inside = 'itemscope="1"';
+							if($expression_length > 9) {
+								$inside .= mb_substr($html, $expression_start+9, $expression_length-9, $encoding);
+							}
+							
+							$html = $pre .$inside . $pos;
+							$offset = $expression_start+$expression_length+4;
+						}						
+					} else {
+						if($expression == "meta") {
+							$pre = mb_substr($html, 0, $expression_start, $encoding);
+							$pos = mb_substr($html, $expression_start+$expression_length, $strlen , $encoding);
+							$inside = 'mdxmeta';
+							$html = $pre .$inside . $pos;
+							$offset = $expression_start+$expression_length+3;
+						}
+					}
+					$expression_start = $offset+1;
+					$expression_ended = false;
+					$after_equal = false;
+					$in_expression = false;
+				}
+				$offset++;
+				if($gt_found) break;
 			}
-			if($gtpos === false) break;
+			
+			
 		}
 		return $html;
 	}
-
-/*
-	private function itemscope_for_tidy($html) {
-		$tr = "";
-		$offset = 0;
-		while( ($ltpos = mb_strpos($html, "<", $offset)) !== false) {
-	
-			$tr .= mb_substr($html, $offset, ($ltpos)-$offset);
-	
-			$offset = $ltpos;
-			$gtpos = mb_strpos($html, ">", $offset);
-	
-			$inside = mb_substr($html, $ltpos, ($gtpos+1)-$ltpos);
-	
-			if($gtpos === false) {
-				$tr .= mb_substr($html, $offset);
-				break;	
-					
-			} elseif(mb_strpos($inside, " itemscope ") || mb_strpos($inside, " itemscope/") || mb_strpos($inside, " itemscope>")) {
-	
-				$inside = str_replace('itemscope', 'itemscope="1"', $inside);
-				$tr .= $inside;
-	
-			} else {
-	
-				$tr .= mb_substr($html, $offset, ($gtpos+1)-$offset);
-			}
-			
-			$offset = $gtpos+1;
-			
-		}
-		if(mb_strlen($html) > $offset) {
-			$tr .= mb_substr($html, $offset);
-		}
-		return $tr;
-	
-	}
-*/
 	
 	/**
 	 * results getter.
