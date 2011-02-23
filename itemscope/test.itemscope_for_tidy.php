@@ -47,7 +47,7 @@ class Test_itemscope extends UnitTestCase {
 	function test_transforming_incomplete() {
 		$str = '<div itemscope=>blabla</div>';
 		//Yes, this is horrible. But tidy fixes it. 
-		$expected = '<div itemscope="1"=>blabla</div>';
+		$expected = '<div itemscope="1">blabla</div>';
 
 		$res = itemscope_for_tidy($str);
 		
@@ -66,6 +66,19 @@ class Test_itemscope extends UnitTestCase {
 
 		$this->assertEqual($res, $expected, "Test failed.");		
 	}
+
+	/**
+	 * 
+	 * This is wierd but it might seem better.
+	 */
+	function test_not_transforming_incomplete2() {
+		$str = '<div itemscope=">blabla</div><div class="pepe">hola</div>';
+		$expected = '<div itemscope="1">hola</div>';
+
+		$res = itemscope_for_tidy($str);
+		$this->assertEqual($res, $expected, "Test failed.");		
+	}	
+
 	
 	function test_picking_after_repeated_open_lt() {
 		$str = '<<div itemscope>blabla</div>';
@@ -112,6 +125,14 @@ class Test_itemscope extends UnitTestCase {
 		$this->assertEqual($res, $expected, "Test failed.");		
 	}
 
+	function test_extra_gts() {
+		$str = '<div itemscope>>>blabla</div><div itemscope>blabla</div>';
+		$expected = '<div itemscope="1">>>blabla</div><div itemscope="1">blabla</div>';
+
+		$res = itemscope_for_tidy($str);
+
+		$this->assertEqual($res, $expected, "Test failed.");		
+	}
 	
 }
 	

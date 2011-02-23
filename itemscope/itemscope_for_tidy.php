@@ -71,6 +71,7 @@
 						$gt_found = true;
 						$expression_ended = true;
 					}
+					$expresion_started = true;
 					$in_expression = true;
 				}	
 
@@ -87,11 +88,12 @@
 							$pos = mb_substr($html, $expression_start+$expression_length, $strlen , $encoding);
 							$inside = 'itemscope="1"';
 							if($expression_length > 9) {
-								$inside .= mb_substr($html, $expression_start+9, $expression_length-9, $encoding);
+//								$inside .= mb_substr($html, $expression_start+9, $expression_length-9, $encoding);
 							}
 							
 							$html = $pre .$inside . $pos;
-							$offset = $expression_start+$expression_length+4;
+//							$offset = $expression_start+$expression_length+4;
+							$offset = $expression_start+13;
 						}						
 					} else {
 						if($expression == "meta") {
@@ -116,6 +118,7 @@
 		return $html;
 	}
 
+
 /*
 $str = '<div class=" itemscope "    itemscope>blabla</div>';
 $str = "<div class=aaaa>jhkhah</div>";
@@ -127,6 +130,9 @@ itemscope  class='sdasdf'>";
 $str = "<div class = 'aaaa' '  >jhkhah</div>";
 $str = "<div class = 'aaaa' ' aaaa  >jhkhah</div>";
 
+
+//This one in particular may cause problems
+$str = '<div itemscope=">blabla</div><div class="pepe">hola</div>';
 
 	
 $str = <<< HTML
@@ -198,7 +204,6 @@ $str = <<< HTML
   </body>
 </html>
 HTML;
-
 
 $res = itemscope_for_tidy($str);
 echo($res);
