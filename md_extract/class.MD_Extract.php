@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * 
+ * @author Emiliano Martínez Luque ( http://www.metonymie.com)
+ *
+ */
+
 
 class MD_Extract {
 	
@@ -32,6 +38,11 @@ class MD_Extract {
 	 * The URI if provided. Used when deciding the base.
 	 */
 	private $URI = "";
+	/**
+	 * Tidy configuration Options
+	 */
+	public $tidy_conf = array('wrap' => 0);
+	
 	
 	
 	/**
@@ -44,12 +55,14 @@ class MD_Extract {
 	 */
 	public static function create_by_html($html, $URI = "", $encoding = "") {
 		$mdx = new MD_Extract();
+		//Detect encoding
+		$encoding = mb_detect_encoding($html);
 		//Prepare itemscope for tidy
 		$html = $mdx->itemscope_for_tidy($html, $encoding);
 		//Create tidy node
 		$tidy = tidy_parse_string($html, array("new-blocklevel-tags" => "section, header, footer, nav, article, aside, figure, dialog, video, audio, details, datagrid, menu, command, output, canvas, datalist, embed",
 		 "new-inline-tags" => "mark, time, meter, progress, figcaption, ruby, rt, rp, bdi, keygen, mdxmeta, source",
-		 "new-empty-tags" => "video, audio, wbr, mdxmeta"));
+		 "new-empty-tags" => "video, audio, wbr, mdxmeta", "char-encoding" => $mdx->encoding_for_tidy($encoding)));
 		//Set $URI
 		$mdx->set_URI($URI);
 		//Decide Base
@@ -59,6 +72,82 @@ class MD_Extract {
 		//do clean results
 		$mdx->do_clean_results();
 		return $mdx;
+	}
+	
+	/**
+	 * Factor(ish) construction of the object by URL
+	 * 
+	 * @param URL $URL
+	 */
+	static function create_by_URL($URL) {
+		$mdx = new MD_Extract();
+		//Set $URI
+		$mdx->set_URI($URL);
+		
+		//Fetch URI with CURL
+		$options = array(
+        	CURLOPT_RETURNTRANSFER => true,     // return web page
+        	CURLOPT_HEADER         => true,    // return headers
+        	CURLOPT_FOLLOWLOCATION => true,     // follow redirects
+        	CURLOPT_ENCODING       => "",       // handle all encodings
+        	CURLOPT_USERAGENT      => "MD_extract", // The User Agent
+	        CURLOPT_AUTOREFERER    => true,     // set referer on redirect
+    	    CURLOPT_CONNECTTIMEOUT => 120,      // timeout on connect
+        	CURLOPT_TIMEOUT        => 120,      // timeout on response
+        	CURLOPT_MAXREDIRS      => 10,       // stop after 10 redirects
+    	);
+
+	    $ch = curl_init( $URL );
+	    curl_setopt_array( $ch, $options );
+    	$html = curl_exec( $ch );
+    	$err = curl_errno( $ch );
+	    $errmsg  = curl_error( $ch );
+    	$header  = curl_getinfo( $ch );
+    	//Encoding options for tidy    	
+    	if(isset($header['content_type'])) {
+    		$exp_header = explode('charset=', $header['content_type']);
+			if(isset($exp_header[1])) {
+	    		$encoding = str_replace('-', '', $exp_header[1]);
+    			$mdx->tidy_conf['char-encoding'] = $encoding;
+    			$mdx->tidy_conf['input-encoding'] = $encoding;
+			   	$mdx->tidy_conf['output-encoding'] = $encoding;
+			}
+    	}
+	    curl_close( $ch );
+		//If there where errors just add to $mf
+	    if($err) {
+			$error['error'] = 'CURL Error: ' .  $err . '\n' . $errmsg;
+			$mdx->errors[] = $error;
+			return $mdx;
+		} else {
+			//No CURL Errors.
+			//Detect encoding
+			$encoding = mb_detect_encoding($html);
+			//Prepare itemscope for tidy
+			$html = $mdx->itemscope_for_tidy($html, $encoding);	
+			//Create tidy node
+			$tidy = tidy_parse_string($html, array("new-blocklevel-tags" => "section, header, footer, nav, article, aside, figure, dialog, video, audio, details, datagrid, menu, command, output, canvas, datalist, embed",
+			 "new-inline-tags" => "mark, time, meter, progress, figcaption, ruby, rt, rp, bdi, keygen, mdxmeta, source",
+			 "new-empty-tags" => "video, audio, wbr, mdxmeta", "char-encoding" => $mdx->encoding_for_tidy($encoding)));
+			//Set $URI
+			$mdx->set_URI($URL);
+			//Decide Base
+			$mdx->decide_base( $tidy->head() );
+			//extract
+			$mdx->extract($tidy->body());
+			//do clean results
+			$mdx->do_clean_results();
+			return $mdx;
+		}
+	}
+	
+	
+	
+	public function encoding_for_tidy($encoding) {
+		switch ($encoding) {
+			case "UTF-8":
+				return "utf8";
+		}
 	}
 
 	/**
@@ -377,6 +466,7 @@ class MD_Extract {
 		
 		$offset = 0;
 		if($encoding == "") $encoding = mb_detect_encoding($html);
+		
 		$strlen = strlen($html);
 		
 		while( ($ltpos = mb_strpos($html, "<", $offset, $encoding)) !== false) {

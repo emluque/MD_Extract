@@ -4,7 +4,8 @@
  * 
  * @package mdx
  * @subpackage examples
- */
+ * @author Emiliano Martínez Luque ( http://www.metonymie.com)
+*/
 ?><?php 
 
 require_once("../md_extract/class.MD_Extract.php");

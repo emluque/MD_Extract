@@ -4,6 +4,7 @@
  * 
  * @package mdx
  * @subpackage examples
+ * @author Emiliano Martínez Luque ( http://www.metonymie.com)
  */
 ?><?php 
 

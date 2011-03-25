@@ -1,4 +1,9 @@
 <?php
+/**
+ * 
+ * @author Emiliano Martínez Luque ( http://www.metonymie.com)
+ *
+ */
 
 require_once("simpletest/unit_tester.php");
 require_once("simpletest/reporter.php");
@@ -210,8 +215,6 @@ HTML;
 		$arr = $mdx->get_errors();
 		$this->assertEqual($arr[0]['error'], MDX_ITEMSCOPE_WITHOUT_CHILDS, "ITEMSCOPE WITHOUT CHILDS test failed");		
 	}
-	
-	
 }
 	
 	

@@ -1,4 +1,11 @@
 <?php
+/**
+ * 
+ * @author Emiliano Martínez Luque ( http://www.metonymie.com)
+ *
+ */
+
+
 define("MDX_ITEMSCOPE_WITHOUT_CHILDS", "A childless html element was marked with itemscope.");
 define("MDX_REPEATED_ID", "Repeated ID.");
 define("MDX_ITEMREF_LOOP", "Itemref Loop.");

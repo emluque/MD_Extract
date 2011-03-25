@@ -1,4 +1,10 @@
 <?php
+/**
+ * 
+ * @author Emiliano Martínez Luque ( http://www.metonymie.com)
+ *
+ */
+
 
 require_once("../unit_testing/simpletest/unit_tester.php");
 require_once("../unit_testing/simpletest/reporter.php");

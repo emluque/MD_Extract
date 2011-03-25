@@ -1,4 +1,10 @@
 <?php
+/**
+ * 
+ * @author Emiliano Martínez Luque ( http://www.metonymie.com)
+ *
+ */
+
 
 
 	function itemscope_for_tidy($html, $encoding = "") {
