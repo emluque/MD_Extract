@@ -8,7 +8,6 @@
  *
  */
 
- */
 ?><?php 
 
 require_once("../md_extract/class.MD_Extract.php");
