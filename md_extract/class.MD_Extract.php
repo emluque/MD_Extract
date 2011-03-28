@@ -338,7 +338,8 @@ class MD_Extract {
 					$results['childs'][ $node->attribute['itemprop'] ][] = $node->attribute['datetime'];
 				break;
 				default:
-					$results['childs'][ $node->attribute['itemprop'] ][] = $this->extract_text($node);
+					$has_picked_value = array();
+					$results['childs'][ $node->attribute['itemprop'] ][] = $this->extract_text($node, 0, $has_picked_value);
 				break;					
 			}
 		}
@@ -347,19 +348,53 @@ class MD_Extract {
 
 	/**
 	 * 
-	 * Basix text extraction for testing. Will be redone.
+	 * Basic text extraction for testing. 
 	 * @param unknown_type $node
 	 */
-	private function extract_text(&$node) {
+	private function extract_text(&$node, $depth, &$has_picked_value ) {
 		$text = "";
-		if(isset($node->type) && $node->type == 4 ) { 
+		if( $node->name == "br") {
+			//Line breaks
+			$text .= '
+';
+			return $text;
+        } elseif($node->type == TIDY_NODETYPE_COMMENT) {
+            //Comment
+            return;
+        } elseif($node->name == "script") {
+            //Comment
+            return;
+        } elseif(isset($node->type) && $node->type == 4 ) { 
+			//Text value
 			$text .= $node->value;
 		} else {
+			//Only add extra line breaks if we have already picked up a text node
+			if( isset($has_picked_value[$depth-1])  ) {
+            	//\n after p
+				if($node->id == TIDY_TAG_DIV || $node->id == TIDY_TAG_DL || $node->id == TIDY_TAG_LI 
+				|| $node->id == TIDY_TAG_DD || $node->id == TIDY_TAG_P || $node->id == TIDY_TAG_H1 
+				|| $node->id == TIDY_TAG_H2 || $node->id == TIDY_TAG_H3 || $node->id == TIDY_TAG_H4 
+				|| $node->id == TIDY_TAG_H5 || $node->id == TIDY_TAG_H6 || $node->id == TIDY_TAG_TABLE 
+				|| $node->id == TIDY_TAG_TBODY || $node->id == TIDY_TAG_THEAD || $node->id == TIDY_TAG_TFOOT 
+				|| $node->id == TIDY_TAG_TR || $node->id == TIDY_TAG_CAPTION || $node->id == TIDY_TAG_DT
+				|| $node->name == "section" || $node->name == "article" || $node->name == "aside" 
+				|| $node->name == "header"  || $node->name == "footer" || $node->name == "nav"
+				|| $node->name == "dialog"  || $node->name == "figure" || $node->name == "address"
+				) {
+					$text .= "\n";
+				}
+			}
+			//Opening <q>
+            if($node->id == TIDY_TAG_Q) $text .= '"';
+			//Childs
 			if(isset($node->child) && is_array($node->child)) {
 				foreach($node->child as $child) {
-					$text .= $this->extract_text($child);
+					$text .= $this->extract_text($child, $depth+1, $has_picked_value);
+					if($text != "") $has_picked_value[ $depth ] = true;
 				}
-			}		
+			}
+			//Closing <q>
+            if($node->id == TIDY_TAG_Q) $text .= '"';
 		}
 		return $text;
 	}

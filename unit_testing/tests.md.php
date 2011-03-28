@@ -130,7 +130,7 @@ HTML;
 <div itemscope itemtype="a" itemref="c">
 <span itemprop="b">b</span>
 </div>
-<div id="c" itemprop="d">d</div>
+<span id="c" itemprop="d">d</span>
 </body>
 </html>		
 HTML;
@@ -215,6 +215,104 @@ HTML;
 		$arr = $mdx->get_errors();
 		$this->assertEqual($arr[0]['error'], MDX_ITEMSCOPE_WITHOUT_CHILDS, "ITEMSCOPE WITHOUT CHILDS test failed");		
 	}
+	
+	/**
+	 * Test for picking up text with line breaks
+	 */
+	function test_text_line_breaks() {
+		$html = <<< HTML
+<html><body>
+<div itemscope itemtype="text">
+<p itemprop="a">aaaa<br/>bbbb</p>
+</div>
+</body>
+</html>		
+HTML;
+		$mdx = MD_Extract::create_by_HTML($html, "");
+		$arr = $mdx->get_clean_results();
+		$test_arr = array( "text" => array("a" => "aaaa
+bbbb", "itemtype" => "text") ); 
+		
+		$this->assertEqual($arr, $test_arr, "The Test for Text:picking up line breaks failed.");		
+	}
+		
+	/**
+	 * Test for picking up text with quotes
+	 */
+	function test_text_quotes() {
+		$html = <<< HTML
+<html><body>
+<div itemscope itemtype="text">
+<p itemprop="a">aaaa<q>bbb</q>aaaa</p>
+</div>
+</body>
+</html>		
+HTML;
+		$mdx = MD_Extract::create_by_HTML($html, "");
+		$arr = $mdx->get_clean_results();
+		$test_arr = array( "text" => array("a" => 'aaaa"bbb"aaaa', "itemtype" => "text") ); 
+		
+		$this->assertEqual($arr, $test_arr, "The Test for Text:picking up quotes failed.");		
+	}	
+	
+	/**
+	 * Test for not picking up text from comments
+	 */
+	function test_text_no_comments() {
+		$html = <<< HTML
+<html><body>
+<div itemscope itemtype="text">
+<p itemprop="a">aaaa<!-- bbb --->aaaa</p>
+</div>
+</body>
+</html>		
+HTML;
+		$mdx = MD_Extract::create_by_HTML($html, "");
+		$arr = $mdx->get_clean_results();
+		$test_arr = array( "text" => array("a" => 'aaaaaaaa', "itemtype" => "text") ); 
+		
+		$this->assertEqual($arr, $test_arr, "The Test for Text:not picking up comments failed.");		
+	}	
+
+	/**
+	 * Test for not picking up text from within script
+	 */
+	function test_text_no_script() {
+		$html = <<< HTML
+<html><body>
+<div itemscope itemtype="text">
+<p itemprop="a">aaaa<script>bbb</script>aaaa</p>
+</div>
+</body>
+</html>		
+HTML;
+		$mdx = MD_Extract::create_by_HTML($html, "");
+		$arr = $mdx->get_clean_results();
+		$test_arr = array( "text" => array("a" => 'aaaaaaaa', "itemtype" => "text") ); 
+		
+		$this->assertEqual($arr, $test_arr, "The Test for Text:not picking up comments failed.");		
+	}	
+	
+	/**
+	 * Test for line breaks after p
+	 */
+	function test_text_line_breaks_for_p() {
+		$html = <<< HTML
+<html><body>
+<div itemscope itemtype="text">
+<div itemprop="a"><p>aaaa</p><p>bbb</p></div>
+</div>
+</body>
+</html>		
+HTML;
+		$mdx = MD_Extract::create_by_HTML($html, "");
+		$arr = $mdx->get_clean_results();
+		$test_arr = array( "text" => array("a" => 'aaaa
+bbb', "itemtype" => "text") ); 
+		
+		$this->assertEqual($arr, $test_arr, "The Test for Text:line breaks for p failed.");		
+	}	
+	
 }
 	
 	
