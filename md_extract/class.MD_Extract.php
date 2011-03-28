@@ -362,7 +362,7 @@ class MD_Extract {
             //Comment
             return;
         } elseif($node->name == "script") {
-            //Comment
+            //script
             return;
         } elseif(isset($node->type) && $node->type == 4 ) { 
 			//Text value
