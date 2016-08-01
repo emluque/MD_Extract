@@ -86,36 +86,36 @@ class MD_Extract {
 		
 		//Fetch URI with CURL
 		$options = array(
-        	CURLOPT_RETURNTRANSFER => true,     // return web page
-        	CURLOPT_HEADER         => true,    // return headers
-        	CURLOPT_FOLLOWLOCATION => true,     // follow redirects
-        	CURLOPT_ENCODING       => "",       // handle all encodings
-        	CURLOPT_USERAGENT      => "MD_extract", // The User Agent
-	        CURLOPT_AUTOREFERER    => true,     // set referer on redirect
-    	    CURLOPT_CONNECTTIMEOUT => 120,      // timeout on connect
-        	CURLOPT_TIMEOUT        => 120,      // timeout on response
-        	CURLOPT_MAXREDIRS      => 10,       // stop after 10 redirects
-    	);
+			CURLOPT_RETURNTRANSFER => true,	 // return web page
+			CURLOPT_HEADER		   => true,	// return headers
+			CURLOPT_FOLLOWLOCATION => true,	 // follow redirects
+			CURLOPT_ENCODING	   => "",	   // handle all encodings
+			CURLOPT_USERAGENT	   => "MD_extract", // The User Agent
+			CURLOPT_AUTOREFERER	   => true,	 // set referer on redirect
+			CURLOPT_CONNECTTIMEOUT => 120,	  // timeout on connect
+			CURLOPT_TIMEOUT		   => 120,	  // timeout on response
+			CURLOPT_MAXREDIRS	   => 10,	   // stop after 10 redirects
+		);
 
-	    $ch = curl_init( $URL );
-	    curl_setopt_array( $ch, $options );
-    	$html = curl_exec( $ch );
-    	$err = curl_errno( $ch );
-	    $errmsg  = curl_error( $ch );
-    	$header  = curl_getinfo( $ch );
-    	//Encoding options for tidy    	
-    	if(isset($header['content_type'])) {
-    		$exp_header = explode('charset=', $header['content_type']);
+		$ch = curl_init( $URL );
+		curl_setopt_array( $ch, $options );
+		$html = curl_exec( $ch );
+		$err = curl_errno( $ch );
+		$errmsg  = curl_error( $ch );
+		$header  = curl_getinfo( $ch );
+		//Encoding options for tidy		
+		if(isset($header['content_type'])) {
+			$exp_header = explode('charset=', $header['content_type']);
 			if(isset($exp_header[1])) {
-	    		$encoding = str_replace('-', '', $exp_header[1]);
-    			$mdx->tidy_conf['char-encoding'] = $encoding;
-    			$mdx->tidy_conf['input-encoding'] = $encoding;
+				$encoding = str_replace('-', '', $exp_header[1]);
+				$mdx->tidy_conf['char-encoding'] = $encoding;
+				$mdx->tidy_conf['input-encoding'] = $encoding;
 			   	$mdx->tidy_conf['output-encoding'] = $encoding;
 			}
-    	}
-	    curl_close( $ch );
+		}
+		curl_close( $ch );
 		//If there where errors just add to $mf
-	    if($err) {
+		if($err) {
 			$error['error'] = 'CURL Error: ' .  $err . '\n' . $errmsg;
 			$mdx->errors[] = $error;
 			return $mdx;
@@ -358,19 +358,19 @@ class MD_Extract {
 			$text .= '
 ';
 			return $text;
-        } elseif($node->type == TIDY_NODETYPE_COMMENT) {
-            //Comment
-            return;
-        } elseif($node->name == "script") {
-            //script
-            return;
-        } elseif(isset($node->type) && $node->type == 4 ) { 
+		} elseif($node->type == TIDY_NODETYPE_COMMENT) {
+			//Comment
+			return;
+		} elseif($node->name == "script") {
+			//script
+			return;
+		} elseif(isset($node->type) && $node->type == 4 ) { 
 			//Text value
 			$text .= $node->value;
 		} else {
 			//Only add extra line breaks if we have already picked up a text node
 			if( isset($has_picked_value[$depth-1])  ) {
-            	//\n after p
+				//\n after p
 				if($node->id == TIDY_TAG_DIV || $node->id == TIDY_TAG_DL || $node->id == TIDY_TAG_LI 
 				|| $node->id == TIDY_TAG_DD || $node->id == TIDY_TAG_P || $node->id == TIDY_TAG_H1 
 				|| $node->id == TIDY_TAG_H2 || $node->id == TIDY_TAG_H3 || $node->id == TIDY_TAG_H4 
@@ -385,7 +385,7 @@ class MD_Extract {
 				}
 			}
 			//Opening <q>
-            if($node->id == TIDY_TAG_Q) $text .= '"';
+			if($node->id == TIDY_TAG_Q) $text .= '"';
 			//Childs
 			if(isset($node->child) && is_array($node->child)) {
 				foreach($node->child as $child) {
@@ -394,7 +394,7 @@ class MD_Extract {
 				}
 			}
 			//Closing <q>
-            if($node->id == TIDY_TAG_Q) $text .= '"';
+			if($node->id == TIDY_TAG_Q) $text .= '"';
 		}
 		return $text;
 	}
